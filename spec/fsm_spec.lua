@@ -90,6 +90,25 @@ describe("Lua state machine framework", function()
       assert.spy(fsm.onstatechange).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
     end)
 
+    it("should allow to customize the self argument for handlers", function()
+      myself = { foo = 'bar' }
+      fsm = machine.create({ initial = 'green', events = stoplight, self = myself })
+
+      fsm.onbeforewarn = stub.new()
+      fsm.onleavegreen = stub.new()
+      fsm.onenteryellow = stub.new()
+      fsm.onafterwarn = stub.new()
+      fsm.onstatechange = stub.new()
+
+      fsm:warn()
+
+      assert.spy(fsm.onbeforewarn).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.onleavegreen).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.onenteryellow).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.onafterwarn).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.onstatechange).was_called_with(myself, 'warn', 'green', 'yellow')
+    end)
+
     it("should fire short handlers as a fallback", function()
       fsm.onyellow = stub.new()
       fsm.onwarn = stub.new()

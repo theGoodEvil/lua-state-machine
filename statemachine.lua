@@ -14,7 +14,7 @@ local function create_transition(name)
 
     if can then
       local from = self.current
-      local params = { self, name, from, to, ... }
+      local params = { self.self, name, from, to, ... }
 
       if call_handler(self["onbefore" .. name], params) == false
       or call_handler(self["onleave" .. from], params) == false then
@@ -51,6 +51,7 @@ function machine.create(options)
   setmetatable(fsm, machine)
 
   fsm.current = options.initial or 'none'
+  fsm.self = options.self or fsm
   fsm.events = {}
 
   for _, event in ipairs(options.events) do
