@@ -16,15 +16,17 @@ local function create_transition(name)
       local from = self.current
       local params = { self.self, name, from, to, ... }
 
-      if call_handler(self["onbefore" .. name], params) == false
-      or call_handler(self["onleave" .. from], params) == false then
+      if call_handler(self.will.apply[name], params) == false
+      or call_handler(self.will.leave[from], params) == false
+      or call_handler(self.will.enter[to], params) == false then
         return false
       end
 
       self.current = to
 
-      call_handler(self["onenter" .. to] or self["on" .. to], params)
-      call_handler(self["onafter" .. name] or self["on" .. name], params)
+      call_handler(self.did.enter[to], params)
+      call_handler(self.did.leave[from], params)
+      call_handler(self.did.apply[name], params)
 
       return true
     end
@@ -46,7 +48,18 @@ end
 function machine.create(options)
   assert(options.events)
 
-  local fsm = {}
+  local fsm = {
+    will = {
+      enter = {},
+      leave = {},
+      apply = {}
+    },
+    did = {
+      enter = {},
+      leave = {},
+      apply = {}
+    }
+  }
   setmetatable(fsm, machine)
 
   fsm.current = options.initial or 'none'

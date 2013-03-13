@@ -52,69 +52,76 @@ describe("Lua state machine framework", function()
     end)
 
     it("should fire handlers", function()
-      fsm.onbeforewarn = stub.new()
-      fsm.onleavegreen = stub.new()
-      fsm.onenteryellow = stub.new()
-      fsm.onafterwarn = stub.new()
-
-      fsm.onyellow = stub.new()
-      fsm.onwarn = stub.new()
+      fsm.will.leave.green = spy.new(function ()
+        assert.are_equal(fsm.current, 'green')
+      end)
+      fsm.did.leave.green = spy.new(function ()
+        assert.are_equal(fsm.current, 'yellow')
+      end)
+      fsm.will.apply.warn = spy.new(function ()
+        assert.are_equal(fsm.current, 'green')
+      end)
+      fsm.did.apply.warn = spy.new(function ()
+        assert.are_equal(fsm.current, 'yellow')
+      end)
+      fsm.will.enter.yellow = spy.new(function ()
+        assert.are_equal(fsm.current, 'green')
+      end)
+      fsm.did.enter.yellow = spy.new(function ()
+        assert.are_equal(fsm.current, 'yellow')
+      end)
 
       fsm:warn()
 
-      assert.spy(fsm.onbeforewarn).was_called_with(fsm, 'warn', 'green', 'yellow')
-      assert.spy(fsm.onleavegreen).was_called_with(fsm, 'warn', 'green', 'yellow')
-      assert.spy(fsm.onenteryellow).was_called_with(fsm, 'warn', 'green', 'yellow')
-      assert.spy(fsm.onafterwarn).was_called_with(fsm, 'warn', 'green', 'yellow')
-
-      assert.spy(fsm.onyellow).was_not_called()
-      assert.spy(fsm.onwarn).was_not_called()
+      assert.spy(fsm.will.leave.green).was_called_with(fsm, 'warn', 'green', 'yellow')
+      assert.spy(fsm.did.leave.green).was_called_with(fsm, 'warn', 'green', 'yellow')
+      assert.spy(fsm.will.apply.warn).was_called_with(fsm, 'warn', 'green', 'yellow')
+      assert.spy(fsm.did.apply.warn).was_called_with(fsm, 'warn', 'green', 'yellow')
+      assert.spy(fsm.will.enter.yellow).was_called_with(fsm, 'warn', 'green', 'yellow')
+      assert.spy(fsm.did.enter.yellow).was_called_with(fsm, 'warn', 'green', 'yellow')
     end)
 
-
     it("should accept additional arguments to handlers", function()
-      fsm.onbeforewarn = stub.new()
-      fsm.onleavegreen = stub.new()
-      fsm.onenteryellow = stub.new()
-      fsm.onafterwarn = stub.new()
+      fsm.will.leave.green = stub.new()
+      fsm.did.leave.green = stub.new()
+      fsm.will.apply.warn = stub.new()
+      fsm.did.apply.warn = stub.new()
+      fsm.will.enter.yellow = stub.new()
+      fsm.did.enter.yellow = stub.new()
 
       fsm:warn('bar')
 
-      assert.spy(fsm.onbeforewarn).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
-      assert.spy(fsm.onleavegreen).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
-      assert.spy(fsm.onenteryellow).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
-      assert.spy(fsm.onafterwarn).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
+      assert.spy(fsm.will.leave.green).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
+      assert.spy(fsm.did.leave.green).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
+      assert.spy(fsm.will.apply.warn).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
+      assert.spy(fsm.did.apply.warn).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
+      assert.spy(fsm.will.enter.yellow).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
+      assert.spy(fsm.did.enter.yellow).was_called_with(fsm, 'warn', 'green', 'yellow', 'bar')
     end)
 
     it("should allow to customize the self argument for handlers", function()
       myself = { foo = 'bar' }
       fsm = machine.create({ initial = 'green', events = stoplight, self = myself })
 
-      fsm.onbeforewarn = stub.new()
-      fsm.onleavegreen = stub.new()
-      fsm.onenteryellow = stub.new()
-      fsm.onafterwarn = stub.new()
+      fsm.will.leave.green = stub.new()
+      fsm.did.leave.green = stub.new()
+      fsm.will.apply.warn = stub.new()
+      fsm.did.apply.warn = stub.new()
+      fsm.will.enter.yellow = stub.new()
+      fsm.did.enter.yellow = stub.new()
 
       fsm:warn()
 
-      assert.spy(fsm.onbeforewarn).was_called_with(myself, 'warn', 'green', 'yellow')
-      assert.spy(fsm.onleavegreen).was_called_with(myself, 'warn', 'green', 'yellow')
-      assert.spy(fsm.onenteryellow).was_called_with(myself, 'warn', 'green', 'yellow')
-      assert.spy(fsm.onafterwarn).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.will.leave.green).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.did.leave.green).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.will.apply.warn).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.did.apply.warn).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.will.enter.yellow).was_called_with(myself, 'warn', 'green', 'yellow')
+      assert.spy(fsm.did.enter.yellow).was_called_with(myself, 'warn', 'green', 'yellow')
     end)
 
-    it("should fire short handlers as a fallback", function()
-      fsm.onyellow = stub.new()
-      fsm.onwarn = stub.new()
-
-      fsm:warn()
-
-      assert.spy(fsm.onyellow).was_called_with(fsm, 'warn', 'green', 'yellow')
-      assert.spy(fsm.onwarn).was_called_with(fsm, 'warn', 'green', 'yellow')
-    end)
-
-    it("should cancel the warn event from onleavegreen", function()
-      fsm.onleavegreen = function(self, name, from, to) 
+    it("should cancel the warn event from will.leave.green", function()
+      fsm.will.leave.green = function(self, name, from, to) 
         return false
       end
 
@@ -124,8 +131,19 @@ describe("Lua state machine framework", function()
       assert.are_equal(fsm.current, 'green')
     end)
 
-    it("should cancel the warn event from onbeforewarn", function()
-      fsm.onbeforewarn = function(self, name, from, to) 
+    it("should cancel the warn event from will.apply.warn", function()
+      fsm.will.apply.warn = function(self, name, from, to) 
+        return false
+      end
+
+      local result = fsm:warn()
+
+      assert.is_false(result)
+      assert.are_equal(fsm.current, 'green')
+    end)
+
+    it("should cancel the warn event from will.enter.yellow", function()
+      fsm.will.enter.yellow = function(self, name, from, to) 
         return false
       end
 
