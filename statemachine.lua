@@ -67,13 +67,17 @@ function machine.create(options)
   fsm.events = {}
 
   for _, event in ipairs(options.events) do
-    local name = event.name
-    fsm[name] = fsm[name] or create_transition(name)
-    fsm.events[name] = fsm.events[name] or { map = {} }
-    add_to_map(fsm.events[name].map, event)
+    fsm:add_event(event)
   end
 
   return fsm
+end
+
+function machine:add_event(event)
+  local name = event.name
+  self[name] = self[name] or create_transition(name)
+  self.events[name] = self.events[name] or { map = {} }
+  add_to_map(self.events[name].map, event)
 end
 
 function machine:is(state)

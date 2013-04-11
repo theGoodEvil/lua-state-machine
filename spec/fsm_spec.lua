@@ -152,6 +152,13 @@ describe("Lua state machine framework", function()
       assert.is_false(result)
       assert.are_equal(fsm.current, 'green')
     end)
+
+    it("can be extended with new events", function()
+      fsm:add_event({ name = 'break_down', from = {'green', 'yellow', 'red'}, to = 'broken' })
+
+      assert.is_true(fsm:break_down())
+      assert.are_equal(fsm.current, 'broken')
+    end)
   end)
 
   describe("A monster", function()
